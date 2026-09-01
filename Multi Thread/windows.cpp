@@ -2,6 +2,7 @@
 #include <time.h>
 #include <Windows.h>
 #include <thread>
+#include <algorithm>
 
 using namespace std;
 
@@ -86,6 +87,7 @@ void merge(int *a, int low, int high, int mid) {
 	for (i = low; i <= high; i++) {
 		a[i] = temp[i - low];
 	}
+	delete[] temp;
 }
 
 int* makeArray(int n) {

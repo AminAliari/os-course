@@ -1,5 +1,7 @@
 #include <iostream>
 #include <time.h>
+#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -30,7 +32,7 @@ int main(int argc, char *argv[]) {
 
     clock_gettime(CLOCK_MONOTONIC, &end);
     elapsed = end.tv_sec-start.tv_sec;
-    elapsed+= (end.tv_nsec-start.tv_nsec)/10000000000.0;
+    elapsed+= (end.tv_nsec-start.tv_nsec)/1000000000.0;
     cout << "elapsed time: " << elapsed << endl;
     return 0;
 }
@@ -48,7 +50,8 @@ void mergeSort(int *a, int low, int high) {
 
 void merge(int *a, int low, int high, int mid) {
 
-    int i, j, k, temp[high - low + 1];
+    int i, j, k;
+    vector<int> temp(high - low + 1);
     i = low;
     k = 0;
     j = mid + 1;

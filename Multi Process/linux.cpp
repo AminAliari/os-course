@@ -8,6 +8,8 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -42,7 +44,7 @@ int main(int argc, char *argv[]) {
 
     clock_gettime(CLOCK_MONOTONIC, &end);
     elapsed = end.tv_sec-start.tv_sec;
-    elapsed+= (end.tv_nsec-start.tv_nsec)/10000000000.0;
+    elapsed+= (end.tv_nsec-start.tv_nsec)/1000000000.0;
     cout << "elapsed time: " << elapsed << endl;
 
     shmdt(array);
@@ -54,7 +56,7 @@ int main(int argc, char *argv[]) {
 void mergeSort(int *a, int low, int high) {
     int len = high - low + 1;
     if (len <= 500) {
-        sort(a, len);
+        sort(a + low, len);
         return;
     }
     if (low < high) {
@@ -88,7 +90,8 @@ void mergeSort(int *a, int low, int high) {
 
 void merge(int *a, int low, int high, int mid) {
 
-    int i, j, k, temp[high - low + 1];
+    int i, j, k;
+    vector<int> temp(high - low + 1);
     i = low;
     k = 0;
     j = mid + 1;
@@ -137,7 +140,16 @@ void sort(int* a, int n) {
 
 int* makeArray (int n) {
     shm_id = shmget(IPC_PRIVATE, n*sizeof(int), IPC_CREAT | 0666);
+    if (shm_id < 0) {
+        perror("shmget");
+        exit(1);
+    }
     int *array = (int*)shmat(shm_id, NULL, 0);
+    if (array == (void*)-1) {
+        perror("shmat");
+        shmctl(shm_id, IPC_RMID, NULL);
+        exit(1);
+    }
     fill_n(array, n, 0);
 
     for (int i=0; i<n; i++) {
